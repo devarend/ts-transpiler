@@ -1,24 +1,28 @@
 import Head from "next/head";
 import styles from "@/styles/Home.module.css";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import * as esbuild from "esbuild-wasm";
-
-const initializeEsbuild = async () => {
-  await esbuild.initialize({
-    worker: true,
-    wasmURL: "https://unpkg.com/esbuild-wasm@0.17.10/esbuild.wasm",
-  });
-};
+import { useAppDispatch } from "@/hooks/useAppDispatch";
+import {
+  initializeEsbuild,
+  selectInitializingEsbuild,
+} from "@/features/transpiler/transpilerSlice";
+import { useAppSelector } from "@/hooks/useAppSelector";
 
 const Home = () => {
   const [code, setCode] = useState<string>("");
+  const isInitializingEsbuild = useAppSelector(selectInitializingEsbuild);
+  const dispatch = useAppDispatch();
 
   const onChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     setCode(event.target.value);
   };
 
+  useEffect(() => {
+    dispatch(initializeEsbuild());
+  }, []);
+
   const transpile = async () => {
-    await initializeEsbuild();
     const result = await esbuild.transform(code, { loader: "ts" });
     console.log(result.code);
   };
@@ -32,6 +36,7 @@ const Home = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
+        {isInitializingEsbuild && <h1>Loading</h1>}
         <textarea
           value={code}
           onChange={onChange}
