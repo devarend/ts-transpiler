@@ -11,6 +11,8 @@ import { useAppSelector } from "@/hooks/useAppSelector";
 
 const Home = () => {
   const [code, setCode] = useState<string>("");
+  const [compiledCode, setCompiledCode] = useState("");
+  const [error, setError] = useState<boolean>(false);
   const isInitializingEsbuild = useAppSelector(selectInitializingEsbuild);
   const dispatch = useAppDispatch();
 
@@ -23,8 +25,14 @@ const Home = () => {
   }, []);
 
   const transpile = async () => {
-    const result = await esbuild.transform(code, { loader: "ts" });
-    console.log(result.code);
+    setError(false);
+    setCompiledCode("");
+    try {
+      const result = await esbuild.transform(code, { loader: "ts" });
+      setCompiledCode(result.code);
+    } catch {
+      setError(true);
+    }
   };
 
   return (
@@ -46,6 +54,15 @@ const Home = () => {
           className="mt-1 p-2 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
           placeholder="code"
         />
+        {error && (
+          <div
+            className="p-4 mt-2 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
+            role="alert"
+          >
+            <span className="font-medium">Something went wrong!</span> please
+            use TS code only.
+          </div>
+        )}
         <button
           type="button"
           onClick={transpile}
@@ -53,6 +70,13 @@ const Home = () => {
         >
           Transpile code
         </button>
+        <textarea
+          disabled={true}
+          value={compiledCode}
+          rows={12}
+          className="p-2 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          placeholder="compiled code"
+        />
       </main>
     </>
   );
