@@ -44,7 +44,7 @@ const Home = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        {isInitializingEsbuild && <h1>Loading</h1>}
+        {isInitializingEsbuild && <h1>Loading WASM package...</h1>}
         <textarea
           value={code}
           onChange={onChange}
@@ -64,6 +64,7 @@ const Home = () => {
           </div>
         )}
         <button
+          disabled={isInitializingEsbuild}
           type="button"
           onClick={transpile}
           className="text-white mt-2 bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 disabled:opacity-50 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
